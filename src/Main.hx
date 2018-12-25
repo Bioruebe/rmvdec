@@ -12,6 +12,7 @@ import sys.io.File;
  */
 class Main {
 	private static inline var HEADER_LENGTH  = 16;
+	private static inline var ACTION_RENAME = 2;
 	private static var files:Array<String>;
 	private static var validExtensions = ["rpgmvp" => ".png", "rpgmvm" => ".m4a", "rpgmvo" => ".ogg"];
 	
@@ -28,6 +29,9 @@ class Main {
 		var encryptionKey = readEncryptionKeyArgument(keyArgPos > 0? args[keyArgPos + 1]: null);
 		var key = Bio.HexToBytes(encryptionKey, false);
 		var iSkipped = 0;
+		var promptOptions = Bio.defaultPromptOptions;
+		promptOptions.push(new Bio.PromptOption("Rename", "r", ACTION_RENAME));
+		promptOptions.push(new Bio.PromptOption("Rename All", "l", ACTION_RENAME, true));
 		
 		for (i in 0...files.length) {
 			try {
@@ -45,11 +49,27 @@ class Main {
 				continue;
 			}
 			
-			var outFile = (outdir == null? fileParts.directory: outdir) + fileParts.name + validExtensions[fileParts.extension];
-			if (FileSystem.exists(outFile) && !Bio.Prompt("The file " + fileParts.name + validExtensions[fileParts.extension] + " already exists. Overwrite?", "OutOverwrite")) {
-				Bio.Cout("Skipped file " + fileParts.fullName);
-				iSkipped++;
-				continue;
+			var outFileName = (outdir == null? fileParts.directory: outdir) + fileParts.name;
+			var extension = validExtensions[fileParts.extension];
+			var outFile = outFileName + extension;
+			if (FileSystem.exists(outFile)) {
+				var userChoice:Dynamic = Bio.Prompt("The file " + fileParts.name + extension + " already exists. Overwrite?", "OutOverwrite", promptOptions);
+				
+				if (userChoice == false) {
+					Bio.Cout("Skipped file " + fileParts.fullName);
+					iSkipped++;
+					continue;
+				}
+				else if (userChoice == ACTION_RENAME) {
+					var i = 2;
+					
+					while (FileSystem.exists(outFile)) {
+						outFile = outFileName + ' ($i)$extension';
+						i++;
+					}
+					
+					Bio.Cout("Renamed file to " + outFile, Bio.LogSeverity.DEBUG);
+				}
 			}
 			
 			var bytes = File.getBytes(files[i]);
@@ -63,7 +83,7 @@ class Main {
 			Bio.Cout('${i + 1}/${files.length}\t${fileParts.name}');
 		}
 		
-		if (iSkipped < 0) Bio.Warning('$iSkipped files were skipped');
+		if (iSkipped > 0) Bio.Warning('$iSkipped files were skipped');
 		Bio.Cout("All OK");
 	}
 	
