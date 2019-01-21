@@ -17,7 +17,7 @@ class Main {
 	private static var validExtensions = ["rpgmvp" => ".png", "rpgmvm" => ".m4a", "rpgmvo" => ".ogg"];
 	
 	static function main() {
-		Bio.Header("rmvdec", "1.0.1", "A simple decrypter for RPG-Maker-MV ressource files (.rpgmvp, .rpgmvo, rpgmvm)", "<input_file>|<input_dir> [<output_dir>] [-k <decrytion_key>|<path_to_System.json>]");
+		Bio.Header("rmvdec", "1.1.0", "A simple decrypter for RPG-Maker-MV ressource files (.rpgmvp, .rpgmvo, rpgmvm)", "<input_file>|<input_dir> [<output_dir>] [-k <decrytion_key>|<path_to_System.json>]");
 		Bio.Seperator();
 		
 		var args = Sys.args();
@@ -128,7 +128,9 @@ class Main {
 			}
 		}
 		else {
-			Bio.Error("Failed to automatically determine encrytion key. Please specify the path to System.json or the encryption key as a second command line parameter.", 2);
+			rawString = Bio.StringPrompt("Failed to automatically determine encrytion key. Please enter the path to System.json (default: <gamedir>\\www\\data\\System.json) or the encryption key (found in said file):");
+			if (rawString == "") Sys.exit(2);
+			return readEncryptionKeyArgument(rawString);
 		}
 		return encryptionKey;
 	}
