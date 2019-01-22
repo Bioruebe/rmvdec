@@ -17,7 +17,7 @@ class Main {
 	private static var validExtensions = ["rpgmvp" => ".png", "rpgmvm" => ".m4a", "rpgmvo" => ".ogg"];
 	
 	static function main() {
-		Bio.Header("rmvdec", "1.1.0", "2018-2019", "A simple decrypter for RPG-Maker-MV ressource files (.rpgmvp, .rpgmvo, rpgmvm)", "<input_file>|<input_dir> [<output_dir>] [-k <decryption_key>|<path_to_System.json>]");
+		Bio.Header("rmvdec", "1.1.0", "2018", "A simple decrypter for RPG-Maker-MV ressource files (.rpgmvp, .rpgmvo, rpgmvm)", "<input_file>|<input_dir> [<output_dir>] [-k <decryption_key>|<path_to_System.json>]");
 		Bio.Seperator();
 		
 		var args = Sys.args();
