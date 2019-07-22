@@ -21,4 +21,8 @@ RPG-Maker MV files are encrypted by simply XORing the raw bytes with a (probably
 The encryption key is saved in System.json, which can be found inside the /data folder of the game.
 
 ### Remarks
+No reverse engineering has been used to write this tool, it is based on public information about the file format released by other researchers.
+
+I released it as a helper for artists to search games for unlicensed use of their assets. It is not meant to encourage extraction with the sole purpose of using assets in your own products without permission of the copyright holder.
+
 Remember: don't steal assets from other people's games. Respect copyrights. And don't protect your own games - it's unnecessary effort.
