@@ -12,6 +12,7 @@ A simple decrypter for RPG-Maker MV ressource files (.rpgmvp, .rpgmvo, rpgmvm)
 ### Technical details
 
 RPG-Maker MV files are encrypted by simply XORing the raw bytes with a (probably random) key and adding a 16 byte header to the file. The file extension is based on the input type:
+
 | encrypted | original |
 | --------- | -------- |
 | rpgmvp    | png      |
