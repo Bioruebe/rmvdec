@@ -17,7 +17,7 @@ class Main {
 	private static var validExtensions = ["rpgmvp" => ".png", "rpgmvm" => ".m4a", "rpgmvo" => ".ogg"];
 	
 	static function main() {
-		Bio.Header("rmvdec", "1.1.0", "2018", "A simple decrypter for RPG-Maker-MV ressource files (.rpgmvp, .rpgmvo, rpgmvm)", "<input_file>|<input_dir> [<output_dir>] [-k <decryption_key>|<path_to_System.json>]");
+		Bio.Header("rmvdec", "1.2.0", "2018-2019", "A simple decrypter for RPG-Maker-MV ressource files (.rpgmvp, .rpgmvo, rpgmvm)", "<input_file>|<input_dir> [<output_dir>] [-rm] [-k <decryption_key>|<path_to_System.json>]");
 		Bio.Seperator();
 		
 		var args = Sys.args();
@@ -25,10 +25,11 @@ class Main {
 		
 		files = readInputFileArgument(args[0]);
 		var keyArgPos = args.indexOf("-k");
-		var outdir = args.length > 1 && args[1] != "-k"? Bio.PathAppendSeperator(args[1]): null;
+		var deleteOriginalFiles = args.indexOf("-rm") > -1;
+		var outdir = args.length > 1 && args[1] != "-k" && args[1] != "-rm"? Bio.PathAppendSeperator(args[1]): null;
 		var encryptionKey = readEncryptionKeyArgument(keyArgPos > 0? args[keyArgPos + 1]: null);
 		var key = Bio.HexToBytes(encryptionKey, false);
-		var iSkipped = 0;
+		var iSkipped = 0, iErrors = 0;
 		var promptOptions = Bio.defaultPromptOptions;
 		promptOptions.push(new Bio.PromptOption("Rename", "r", ACTION_RENAME));
 		promptOptions.push(new Bio.PromptOption("Rename All", "l", ACTION_RENAME, true));
@@ -79,10 +80,26 @@ class Main {
 				bytes.set(j, bytes.get(j) ^ key.get(j));
 			}
 			
-			File.saveBytes(outFile, bytes);
+			try {
+				File.saveBytes(outFile, bytes);
+			}
+			catch (exception:Dynamic) {
+				Bio.Error("Failed to write file " + outFile + ", error: " + exception);
+				iErrors++;
+				continue;
+			}
 			Bio.Cout('${i + 1}/${files.length}\t${fileParts.name}');
+			if (deleteOriginalFiles) {
+				try {
+					FileSystem.deleteFile(files[i]);
+				}
+				catch (exception:Dynamic) {
+					Bio.Error("Failed to delete file " + files[i] + ", error: " + exception);
+				}
+			}
 		}
 		
+		if (iErrors > 0) Bio.Warning('$iErrors files failed to decrypt');
 		if (iSkipped > 0) Bio.Warning('$iSkipped files were skipped');
 		Bio.Cout("All OK");
 	}
